@@ -1,0 +1,36 @@
+# Secretos y credenciales
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*
+.aws/
+ngrok.yml
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Modelos y artefactos pesados
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+checkpoints/
+ollama_data/
+docker_data/
+
+# Node / build
+node_modules/
+dist/
+build/
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
