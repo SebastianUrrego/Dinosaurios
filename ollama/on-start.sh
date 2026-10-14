@@ -47,4 +47,5 @@ echo
 echo "=== $(date) fin ==="
 EOF
 
-nohup bash /tmp/ollama-start.sh >> /home/ec2-user/SageMaker/logs/on-start.log 2>&1 &
+# setsid lo separa de la sesión que lo lanzó, para que siga vivo aunque esta termine
+setsid nohup bash /tmp/ollama-start.sh >> /home/ec2-user/SageMaker/logs/on-start.log 2>&1 < /dev/null &
