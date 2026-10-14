@@ -1,14 +1,16 @@
 #!/bin/bash
 # Lifecycle configuration "on-start" de la notebook instance de SageMaker.
-# Se ejecuta como root en cada arranque. SageMaker cancela el script a los 5 minutos,
-# por eso la parte lenta (reiniciar Docker y levantar Ollama) corre en segundo plano.
+# Se ejecuta como root en cada arranque y SageMaker lo cancela a los 5 minutos.
+# El trabajo con Docker se lanza como servicio aparte (systemd-run) para que el
+# lifecycle termine en segundos y el arranque del notebook no quede esperando.
 # Log: /home/ec2-user/SageMaker/logs/on-start.log
-set -e
+set -ex
 
 mkdir -p /home/ec2-user/SageMaker/docker /home/ec2-user/SageMaker/ollama /home/ec2-user/SageMaker/logs
 chown ec2-user:ec2-user /home/ec2-user/SageMaker/logs
 
-cat > /tmp/ollama-start.sh <<'EOF'
+cat > /usr/local/bin/ollama-start.sh <<'EOF'
+#!/bin/bash
 set -euo pipefail
 echo "=== $(date) inicio ==="
 
@@ -27,7 +29,7 @@ with open(path, "w") as f:
     json.dump(cfg, f, indent=2)
 PY
 
-systemctl restart docker || service docker restart
+systemctl restart docker
 for i in $(seq 1 30); do docker info >/dev/null 2>&1 && break; sleep 2; done
 docker info --format 'Docker data-root: {{.DockerRootDir}}'
 
@@ -46,6 +48,9 @@ for i in $(seq 1 60); do curl -sf http://localhost:11434/api/version && break; s
 echo
 echo "=== $(date) fin ==="
 EOF
+chmod +x /usr/local/bin/ollama-start.sh
 
-# setsid lo separa de la sesión que lo lanzó, para que siga vivo aunque esta termine
-setsid nohup bash /tmp/ollama-start.sh >> /home/ec2-user/SageMaker/logs/on-start.log 2>&1 < /dev/null &
+systemctl reset-failed ollama-start 2>/dev/null || true
+systemd-run --unit=ollama-start --no-block \
+  bash -c '/usr/local/bin/ollama-start.sh >> /home/ec2-user/SageMaker/logs/on-start.log 2>&1'
+echo "ollama-start lanzado en segundo plano"
