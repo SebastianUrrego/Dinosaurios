@@ -46,6 +46,20 @@ Al arrancar, el notebook queda listo cuando el log termina en `ARRANQUE_COMPLETO
 tail -n 8 /home/ec2-user/SageMaker/logs/on-start.log; docker ps --filter name=ollama
 ```
 
+## Identidad de Aborosaurus
+
+Mismo prompt (raíces reales de nombres, salida JSON, temperatura 0.4, semilla 42) con dos modelos:
+
+| | `llama3.2:3b` | `gemma4:e2b` |
+|---|---|---|
+| Significado | "cabeza imitadora": no usa las raíces dadas | "lagarto del árbol" (*arbor-* + *-saurus*) |
+| Coherencia | carnívoro con "dientes de molar"; el campo hábitat describe la dieta | herbívoro arborícola: patas largas para trepar, dientes finos para hojas, vive en el dosel |
+| `prompt_imagen` | incluye el nombre y se contradice ("large, medium-sized") | solo rasgos visibles y entorno |
+
+Se eligió **`gemma4:e2b`**. La identidad final está en `identidad.json` y las dos salidas en
+`identidad_llama3.2_3b.json` e `identidad_gemma4_e2b.json`. Un detalle a vigilar: 6 m y 1.5 t es
+mucho peso para un trepador; el chat no debe contradecirlo, pero puede matizarlo.
+
 ## Entrada / salida
 
 - **Recibe:** `POST /api/generate` o `/api/chat` con `model` y `prompt`/`messages`.
