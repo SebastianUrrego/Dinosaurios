@@ -50,6 +50,38 @@ def diez_nombres(modelo, vocab, conocidos, params):
     return elegidos
 
 
+def graficar(resultados, ruta):
+    """Una columna por métrica; la estrategia elegida en azul y las demás en gris."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    metricas = [("nuevos_%", "Nombres nuevos (%)"), ("unicos_%", "Nombres únicos (%)"),
+                ("sufijo_real_%", "Con sufijo real (%)")]
+    nombres = list(resultados)
+    colores = ["#2a78d6" if n == ESTRATEGIA_ELEGIDA else "#b9b8b3" for n in nombres]
+    fig, ejes = plt.subplots(1, len(metricas), figsize=(13, 3.6), sharey=True)
+    fig.patch.set_facecolor("#fcfcfb")
+    for eje, (clave, titulo) in zip(ejes, metricas):
+        valores = [resultados[n][clave] for n in nombres]
+        barras = eje.barh(nombres, valores, color=colores, height=0.6)
+        eje.bar_label(barras, fmt="%.1f", padding=3, color="#0b0b0b", fontsize=9)
+        eje.set_title(titulo, color="#0b0b0b", fontsize=11, loc="left")
+        eje.set_xlim(0, 112)
+        eje.set_facecolor("#fcfcfb")
+        eje.tick_params(colors="#52514e", labelsize=9)
+        eje.grid(axis="x", color="#e4e3df", linewidth=0.8)
+        eje.set_axisbelow(True)
+        for lado in ("top", "right", "left"):
+            eje.spines[lado].set_visible(False)
+        eje.spines["bottom"].set_color("#b9b8b3")
+    ejes[0].invert_yaxis()
+    fig.suptitle(f"Estrategias de muestreo ({N_MUESTRAS} nombres cada una) - en azul la elegida",
+                 color="#0b0b0b", fontsize=12, x=0.01, ha="left")
+    fig.tight_layout()
+    fig.savefig(ruta, dpi=120, facecolor=fig.get_facecolor())
+
+
 def main():
     modelo, vocab, ckpt = cargar()
     conocidos = set(cargar_nombres())
@@ -59,6 +91,7 @@ def main():
         resultados[nombre] = {"parametros": params, **metricas}
         print(nombre, {k: v for k, v in metricas.items() if k != "ejemplos"})
 
+    graficar(resultados, RESULTADOS / "muestreo.png")
     params = dict(ESTRATEGIAS)[ESTRATEGIA_ELEGIDA]
     diez = diez_nombres(modelo, vocab, conocidos, params)
     informe = {"modelo": ckpt["config"]["nombre"], "muestras_por_estrategia": N_MUESTRAS, "semilla": SEMILLA,
