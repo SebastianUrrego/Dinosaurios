@@ -10,8 +10,9 @@
 | | |
 |---|---|
 | Notebook | `dinosaurios-ollama`, `ml.m5.xlarge` (4 vCPU, 16 GB), disco 50 GB, rol `LabRole`, `us-east-1` |
+| Versión de Ollama | 0.40.5 |
 | Ollama | contenedor `ollama/ollama` (CPU), `127.0.0.1:11434` |
-| Modelo | `llama3.2:3b` (2.0 GB, id `a80c4f17acd5`) |
+| Modelo | `llama3.2:3b`, 3.2B parámetros, GGUF Q4_K_M, digest `a80c4f17acd5` (detalle en `modelo.json`) |
 | Lifecycle | `dinosaurios-on-start` → `on-start.sh` |
 
 ## Crear o actualizar el lifecycle
