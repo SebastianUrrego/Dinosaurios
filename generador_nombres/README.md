@@ -5,7 +5,7 @@
 | `datos.py` | Preprocesamiento: normaliza, vocabulario, `<S>`/`<E>`, longitud `T`, relleno `<PAD>`, pares X/Y |
 | `modelo.py` | Modelo Embedding → RNN/LSTM/GRU → Linear y generación autoregresiva (temperatura, top-k, top-p) |
 | `entrenar.py` | Entrena las dos configuraciones y guarda curvas, `experimentos.json` y el mejor `modelo.pt` |
-| `muestreo.py` | Compara estrategias de muestreo y genera los diez nombres (`muestreo.md`, `muestreo.json`) |
+| `muestreo.py` | Compara estrategias de muestreo y genera los diez nombres (`muestreo.md`, `muestreo.json`, `muestreo.png`) |
 | `generar.py` | Genera nombres nuevos con el modelo ya entrenado (lo usa el botón **Nuevo Dinosaurio**) |
 
 ```bash
