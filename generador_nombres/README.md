@@ -73,4 +73,4 @@ y sobreajusta más rápido. Se guarda cada modelo en su mejor época de validaci
 Ereidasaurus, Crothongosaurus, Coratosaurus, Deistavuraptor, Dyrotaphalus, Pispondylus,
 Aborosaurus, Hopalophosaurus, Taivelasaurus, Alticoelia. Ninguno está en `dinos.csv`.
 
-**Nombre seleccionado:** **Aborosaurus**. Termina en el sufijo real *-saurus* y no se parece a ningún nombre del dataset.
+**Nombre seleccionado:** **Aborosaurus**. No está en el dataset, aunque se parece a nombres reales como *Abrosaurus*, *Orosaurus* o *Torosaurus*: el modelo aprendió sus patrones sin copiarlos, que es lo que pide la guía.
