@@ -4,6 +4,7 @@
 |---|---|
 | `on-start.sh` | Lifecycle configuration *on-start*: mueve el `data-root` de Docker a `/home/ec2-user/SageMaker/docker`, levanta el contenedor `ollama` (modelos en `/home/ec2-user/SageMaker/ollama`) y descarga el modelo en segundo plano. Log: `/home/ec2-user/SageMaker/logs/on-start.log`. |
 | `verificar_ollama.ipynb` | Comprueba la instalación, guarda nombre y versión del modelo en `modelo.json` y prueba una instrucción. |
+| `identidad.ipynb` | Genera la identidad de Aborosaurus con dos modelos (mismo prompt, salida JSON) y guarda la elegida en `identidad.json`. |
 
 ## Configuración
 
