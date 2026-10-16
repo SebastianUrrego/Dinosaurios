@@ -22,6 +22,8 @@ venv/
 *.safetensors
 *.bin
 checkpoints/
+# El modelo de nombres es pequeño y la app lo usa sin reentrenar
+!generador_nombres/resultados/modelo.pt
 ollama_data/
 docker_data/
 

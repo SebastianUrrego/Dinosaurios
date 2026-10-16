@@ -1,0 +1,117 @@
+{
+  "modelo": "B: GRU 2x256",
+  "muestras_por_estrategia": 200,
+  "semilla": 7,
+  "estrategias": {
+    "T = 0.5": {
+      "parametros": {
+        "temperatura": 0.5
+      },
+      "nuevos_%": 87.0,
+      "unicos_%": 92.5,
+      "longitud_media": 11.8,
+      "sufijo_real_%": 78.0,
+      "ejemplos": [
+        "Madrosaurus",
+        "Laphorhinis",
+        "Raivenator",
+        "Tangnasaurus",
+        "Comadia",
+        "Chyndelong",
+        "Stenophoraptor",
+        "Pangousaurus"
+      ]
+    },
+    "T = 1.0": {
+      "parametros": {
+        "temperatura": 1.0
+      },
+      "nuevos_%": 99.0,
+      "unicos_%": 100.0,
+      "longitud_media": 12.0,
+      "sufijo_real_%": 57.5,
+      "ejemplos": [
+        "Nexingxaura",
+        "Nesenosaurus",
+        "Laowlangodon",
+        "Siljiafelisaurus",
+        "Ubisteosaurus",
+        "Hixiankunia",
+        "Chingjia",
+        "Crathuthiansaurus"
+      ]
+    },
+    "T = 1.5": {
+      "parametros": {
+        "temperatura": 1.5
+      },
+      "nuevos_%": 97.0,
+      "unicos_%": 98.5,
+      "longitud_media": 12.5,
+      "sufijo_real_%": 30.0,
+      "ejemplos": [
+        "Nexinixaips",
+        "Nmsendutliavenlonlyus",
+        "Dhproilosaurus",
+        "Porntaudisteosuchus",
+        "Hixirnkusaurus",
+        "Wujya",
+        "Zrnthsthixia",
+        "Hlawpaeopngousaurus"
+      ]
+    },
+    "top-k = 5 (T = 1.0)": {
+      "parametros": {
+        "temperatura": 1.0,
+        "top_k": 5
+      },
+      "nuevos_%": 93.0,
+      "unicos_%": 97.5,
+      "longitud_media": 12.0,
+      "sufijo_real_%": 68.5,
+      "ejemplos": [
+        "Tenganthongosaurus",
+        "Chingosaurus",
+        "Protyoraptor",
+        "Steosuchus",
+        "Sinirosaurus",
+        "Chungxaurosaurus",
+        "Sialimimodes",
+        "Pacosaurus"
+      ]
+    },
+    "top-p = 0.9 (T = 1.0)": {
+      "parametros": {
+        "temperatura": 1.0,
+        "top_p": 0.9
+      },
+      "nuevos_%": 96.5,
+      "unicos_%": 100.0,
+      "longitud_media": 11.9,
+      "sufijo_real_%": 71.5,
+      "ejemplos": [
+        "Nexingxaura",
+        "Nesenosaurus",
+        "Laowanlius",
+        "Proptoraptor",
+        "Parataceratops",
+        "Lapagongbasaurus",
+        "Chingjia",
+        "Crathuthiansaurus"
+      ]
+    }
+  },
+  "estrategia_elegida": "top-p = 0.9 (T = 1.0)",
+  "diez_nombres": [
+    "Ereidasaurus",
+    "Crothongosaurus",
+    "Coratosaurus",
+    "Deistavuraptor",
+    "Dyrotaphalus",
+    "Pispondylus",
+    "Aborosaurus",
+    "Hopalophosaurus",
+    "Taivelasaurus",
+    "Alticoelia"
+  ]
+}
