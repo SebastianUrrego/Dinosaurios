@@ -1,11 +1,11 @@
 {
   "nombre": "Aborosaurus",
-  "modelo": "amused/amused-512",
-  "prompt": "Aborosaurus, a dinosaur. A medium-sized, slender dinosaur with long limbs clinging to a massive tree branch in a dense, humid forest canopy. Olive green scales, browsing on leaves. Soft, dappled sunlight.",
-  "negative_prompt": "blurry, low quality, text, watermark, deformed, extra limbs, cartoon",
-  "pasos": 12,
-  "guidance_scale": 10.0,
-  "semilla": 0,
+  "modelo": "stabilityai/sd-turbo",
+  "prompt": "Aborosaurus, a slender olive-green herbivorous dinosaur climbing a thick mossy tree trunk, long legs gripping the bark, small head, long tail, detailed scales, dense humid rainforest canopy, soft dappled sunlight, realistic nature documentary illustration",
+  "negative_prompt": null,
+  "pasos": 4,
+  "guidance_scale": 0.0,
+  "semilla": 6,
   "resolucion": "512x512",
   "gpu": "Tesla T4"
 }

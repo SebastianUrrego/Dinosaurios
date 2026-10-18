@@ -12,7 +12,7 @@ Modelo de caracteres → Nombre → Ollama → Identidad → Imagen → Chat
 |---|---|---|
 | 1. Generador de nombres | ✅ Listo | GRU 2×256, top-p 0.9, 10 nombres nuevos → **Aborosaurus** |
 | 2. Identidad con Ollama | ✅ Listo | SageMaker `ml.m5.xlarge` + Docker + lifecycle on-start, `gemma4:e2b` |
-| 3. Imagen | ✅ Listo | `amused/amused-512` en Colab (T4), semilla 0 de 4 candidatas |
+| 3. Imagen | ✅ Listo | Colab (T4): aMUSEd vs SD-Turbo → `stabilityai/sd-turbo`, semilla 6 |
 | 4. App web y chat | ⏳ Pendiente | |
 
 ## Estructura
@@ -125,28 +125,43 @@ Esta identidad ([`ollama/identidad.json`](ollama/identidad.json)) es la entrada 
 
 ## 3. Imagen
 
-La imagen se generó en Google Colab (GPU Tesla T4) con `amused/amused-512`. El prompt es corto
-y combina el nombre con el `prompt_imagen` que escribió Ollama:
+La imagen se generó en Google Colab (GPU Tesla T4) en dos rondas ([detalle](imagen/README.md)).
 
-> Aborosaurus, a dinosaur. A medium-sized, slender dinosaur with long limbs clinging to a massive tree
-> branch in a dense, humid forest canopy. Olive green scales, browsing on leaves. Soft, dappled sunlight.
+**Ronda 1: aMUSEd con el prompt de Ollama.** Con `amused/amused-512` y el `prompt_imagen` de la
+identidad (12 pasos, guía 10.0, 4 semillas), ninguna imagen convenció: salieron oscuras, con cabeza de
+pico, cuerpo de cuadrúpedo o dientes de carnívoro.
 
-Se generaron 4 candidatas (semillas 0 a 3; 12 pasos, guía 10.0, 512×512):
+![Ronda 1 con aMUSEd](imagen/ronda1/candidatas_amused.png)
 
-![Candidatas](imagen/candidatas.png)
+**Ronda 2: prompt más concreto y comparación de modelos.** Se reescribió el prompt con rasgos visuales
+y estilo, se añadió un prompt negativo (`beak, pterosaur, sharp teeth, quadruped, heavy body…`) y se
+compararon dos modelos de tamaño similar con 8 semillas cada uno:
+
+> Aborosaurus, a slender olive-green herbivorous dinosaur climbing a thick mossy tree trunk, long legs
+> gripping the bark, small head, long tail, detailed scales, dense humid rainforest canopy, soft dappled
+> sunlight, realistic nature documentary illustration
+
+| | `amused/amused-512` | `stabilityai/sd-turbo` |
+|---|---|---|
+| Tipo | Modelo enmascarado (MUSE) sobre fichas VQ-GAN | Difusión latente destilada de Stable Diffusion 2.1 |
+| Tamaño aprox. | ~800 M parámetros | ~1 300 M parámetros |
+| Pasos / guía | 12 / 10.0 | 4 / 0.0 |
+
+SD-Turbo dio imágenes nítidas y coherentes (arriba semillas 0-3, abajo 4-7):
+
+![Candidatas SD-Turbo](imagen/candidatas_sd_turbo.webp)
 
 | Semilla | ¿Encaja con la identidad? |
 |---|---|
-| **0** | ✅ Esbelto, verde oliva, patas largas, bosque húmedo: **elegida** |
-| 1 | Cuadrúpedo robusto, demasiado pesado para un trepador |
-| 2 | Color azul verdoso, se aleja del verde oliva |
-| 3 | Dientes de carnívoro, contradice la dieta herbívora |
+| 1 | Trepado en el tronco (su rasgo distintivo), pero el cuerpo se ve poco |
+| 5 | Muy vistosa, pero los dientes puntiagudos parecen de carnívoro |
+| **6** | ✅ **Elegida:** esbelto, patas largas, cabeza pequeña, cola larga, verde, en bosque húmedo; boca casi cerrada |
+| 7 | Esbelto junto al tronco, con la boca más abierta |
 
 <p align="center"><img src="imagen/aborosaurus.png" alt="Aborosaurus" width="400"></p>
 
-Ninguna candidata lo muestra agarrado a una rama: aMUSEd es un modelo pequeño y sigue mal las poses
-concretas. La elegida conserva lo principal de la identidad: cuerpo esbelto, color verde oliva y
-entorno de bosque húmedo. La imagen se genera una sola vez y la app la reutiliza en el chat.
+La semilla 6 equilibra calidad y coherencia con la identidad; la diferencia que queda es que está en el
+suelo y no trepando. La imagen se genera una sola vez y la app la reutiliza en el chat.
 
 ---
 

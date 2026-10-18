@@ -2,37 +2,57 @@
 
 | Archivo | Qué es |
 |---|---|
-| `generar_imagen.ipynb` | Notebook para Google Colab (GPU T4): carga `amused/amused-512`, genera 4 candidatas y guarda la elegida |
-| `aborosaurus.png` | Imagen elegida (512×512), la que usa la app y el chat |
-| `candidatas.png` | Las 4 candidatas (semillas 0 a 3) |
-| `imagen_info.json` | Prompt, prompt negativo, pasos, guía, semilla y GPU |
+| `generar_imagen.ipynb` | Notebook para Google Colab (GPU T4): mismo prompt con `amused/amused-512` y `stabilityai/sd-turbo`, 8 semillas cada uno |
+| `aborosaurus.png` | **Imagen final** (SD-Turbo, semilla 6, 512×512), la que usa la app y el chat |
+| `candidatas_sd_turbo.webp` | Las 8 candidatas de SD-Turbo (arriba semillas 0-3, abajo 4-7) |
+| `imagen_info.json` | Modelo, prompt, pasos, guía, semilla y GPU de la imagen final |
+| `ronda1/` | Primera ronda con aMUSEd: candidatas, imagen y configuración |
 
-**Entrada:** nombre y `prompt_imagen` de `ollama/identidad.json`.
+**Entrada:** nombre y rasgos de `ollama/identidad.json`.
 **Salida:** `aborosaurus.png`. Se genera una sola vez por dinosaurio y se reutiliza.
 
-## Configuración
+## Ronda 1: aMUSEd con el prompt de Ollama
+
+Prompt: el `prompt_imagen` que escribió Ollama (*"A medium-sized, slender dinosaur with long limbs clinging
+to a massive tree branch…"*), 12 pasos, guía 10.0, semillas 0 a 3.
+
+![Ronda 1](ronda1/candidatas_amused.png)
+
+Ninguna convenció: las imágenes salieron oscuras, con cabezas con forma de pico (semilla 0), cuerpos
+pesados de cuadrúpedo (1), color azulado (2) o dientes de carnívoro (3). aMUSEd es un modelo enmascarado
+liviano que trabaja con fichas discretas de un VQ-GAN; pierde detalle y sigue mal las poses.
+
+## Ronda 2: prompt más concreto y comparación de modelos
+
+Se reescribió el prompt con rasgos visuales concretos y estilo, y se agregó un prompt negativo con lo que
+contradice la identidad:
 
 | | |
 |---|---|
-| Modelo | `amused/amused-512` (fp16) con `diffusers` |
-| Entorno | Google Colab, Tesla T4 |
-| Prompt | `Aborosaurus, a dinosaur. A medium-sized, slender dinosaur with long limbs clinging to a massive tree branch in a dense, humid forest canopy. Olive green scales, browsing on leaves. Soft, dappled sunlight.` |
-| Prompt negativo | `blurry, low quality, text, watermark, deformed, extra limbs, cartoon` |
-| Pasos / guía | 12 / 10.0 |
-| Resolución | 512×512 |
+| Prompt | `Aborosaurus, a slender olive-green herbivorous dinosaur climbing a thick mossy tree trunk, long legs gripping the bark, small head, long tail, detailed scales, dense humid rainforest canopy, soft dappled sunlight, realistic nature documentary illustration` |
+| Prompt negativo (solo aMUSEd) | `beak, bird, pterosaur, sharp teeth, quadruped, heavy body, blurry, deformed, extra limbs, text, watermark, cartoon` |
 
-## Candidatas
+Se compararon dos modelos de tamaño similar:
 
-![Candidatas](candidatas.png)
-
-| Semilla | Resultado | ¿Encaja con la identidad? |
+| | `amused/amused-512` | `stabilityai/sd-turbo` |
 |---|---|---|
-| **0** | Esbelto, verde oliva, patas largas, en un bosque húmedo con niebla | ✅ Elegida |
-| 1 | Cuadrúpedo robusto entre hojas | Demasiado pesado para un trepador |
-| 2 | Bípedo azul verdoso con cresta | El color se aleja del verde oliva |
-| 3 | Cuello largo y mandíbula con dientes de carnívoro | Contradice la dieta herbívora |
+| Tipo | Modelo enmascarado (MUSE) sobre fichas VQ-GAN | Difusión latente destilada (ADD) de Stable Diffusion 2.1 |
+| Tamaño aprox. | ~800 M parámetros | ~1 300 M parámetros |
+| Pasos / guía | 12 / 10.0 | 4 / 0.0 (no usa prompt negativo) |
 
-Ninguna lo muestra agarrado a una rama: aMUSEd es un modelo pequeño y sigue mal las poses concretas.
-La semilla 0 conserva lo principal de la identidad: cuerpo esbelto, color verde oliva y entorno de bosque húmedo.
+SD-Turbo dio imágenes nítidas y coherentes con la identidad:
 
-![Aborosaurus](aborosaurus.png)
+![Candidatas SD-Turbo](candidatas_sd_turbo.webp)
+
+| Semilla | Resultado |
+|---|---|
+| 1 | Trepado en el tronco, el rasgo distintivo, pero el cuerpo se ve poco |
+| 5 | La más vistosa, pero la boca abierta con dientes puntiagudos parece de carnívoro |
+| **6** | **Elegida:** esbelto, patas largas, cabeza pequeña, cola larga, verde, en bosque húmedo junto a un tronco; boca casi cerrada |
+| 7 | Esbelto junto al tronco, pero con la boca más abierta |
+| 3 | Boca roja muy abierta, estilo tiranosaurio |
+
+<p align="center"><img src="aborosaurus.png" alt="Aborosaurus" width="400"></p>
+
+La semilla 6 equilibra calidad y coherencia con la identidad. Está en el suelo y no trepando: es la
+diferencia que queda frente a la descripción.
