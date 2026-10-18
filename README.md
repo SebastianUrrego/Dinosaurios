@@ -12,7 +12,7 @@ Modelo de caracteres → Nombre → Ollama → Identidad → Imagen → Chat
 |---|---|---|
 | 1. Generador de nombres | ✅ Listo | GRU 2×256, top-p 0.9, 10 nombres nuevos → **Aborosaurus** |
 | 2. Identidad con Ollama | ✅ Listo | SageMaker `ml.m5.xlarge` + Docker + lifecycle on-start, `gemma4:e2b` |
-| 3. Imagen | ⏳ Notebook listo | `imagen/generar_imagen.ipynb` (Colab, `amused/amused-512`) |
+| 3. Imagen | ✅ Listo | `amused/amused-512` en Colab (T4), semilla 0 de 4 candidatas |
 | 4. App web y chat | ⏳ Pendiente | |
 
 ## Estructura
@@ -21,7 +21,7 @@ Modelo de caracteres → Nombre → Ollama → Identidad → Imagen → Chat
 |---|---|
 | `generador_nombres/` | RNN de caracteres: preprocesamiento, entrenamiento, muestreo y evidencias ([detalle](generador_nombres/README.md)) |
 | `ollama/` | Ollama en SageMaker: lifecycle on-start, verificación e identidad ([detalle](ollama/README.md)) |
-| `imagen/` | Generación de la imagen text-to-image (Colab) |
+| `imagen/` | Imagen text-to-image en Colab: notebook, candidatas e imagen final ([detalle](imagen/README.md)) |
 | `app/` | Aplicación web y chat |
 | `docs/` | Capturas y diagramas |
 
@@ -123,6 +123,33 @@ Esta identidad ([`ollama/identidad.json`](ollama/identidad.json)) es la entrada 
 
 ---
 
+## 3. Imagen
+
+La imagen se generó en Google Colab (GPU Tesla T4) con `amused/amused-512`. El prompt es corto
+y combina el nombre con el `prompt_imagen` que escribió Ollama:
+
+> Aborosaurus, a dinosaur. A medium-sized, slender dinosaur with long limbs clinging to a massive tree
+> branch in a dense, humid forest canopy. Olive green scales, browsing on leaves. Soft, dappled sunlight.
+
+Se generaron 4 candidatas (semillas 0 a 3; 12 pasos, guía 10.0, 512×512):
+
+![Candidatas](imagen/candidatas.png)
+
+| Semilla | ¿Encaja con la identidad? |
+|---|---|
+| **0** | ✅ Esbelto, verde oliva, patas largas, bosque húmedo: **elegida** |
+| 1 | Cuadrúpedo robusto, demasiado pesado para un trepador |
+| 2 | Color azul verdoso, se aleja del verde oliva |
+| 3 | Dientes de carnívoro, contradice la dieta herbívora |
+
+<p align="center"><img src="imagen/aborosaurus.png" alt="Aborosaurus" width="400"></p>
+
+Ninguna candidata lo muestra agarrado a una rama: aMUSEd es un modelo pequeño y sigue mal las poses
+concretas. La elegida conserva lo principal de la identidad: cuerpo esbelto, color verde oliva y
+entorno de bosque húmedo. La imagen se genera una sola vez y la app la reutiliza en el chat.
+
+---
+
 ## Configuración
 
 Copia `.env.example` a `.env` y completa los valores. El archivo `.env` no se versiona.
@@ -133,7 +160,7 @@ Copia `.env.example` a `.env` y completa los valores. El archivo `.env` no se ve
 |---|---|
 | Generador de nombres | `cd generador_nombres && pip install -r requirements.txt && python entrenar.py && python muestreo.py`; nombres nuevos sin reentrenar: `python generar.py -n 5` |
 | Ollama | lifecycle `ollama/on-start.sh` (ver [ollama/README.md](ollama/README.md)), luego `verificar_ollama.ipynb` e `identidad.ipynb` en SageMaker |
-| Imagen | `imagen/generar_imagen.ipynb` en Colab con GPU |
+| Imagen | `imagen/generar_imagen.ipynb` en Colab con GPU; resultado en `imagen/aborosaurus.png` |
 | App | _pendiente_ |
 
 ## Enlaces
