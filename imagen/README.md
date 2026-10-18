@@ -4,7 +4,8 @@
 |---|---|
 | `generar_imagen.ipynb` | Notebook para Google Colab (GPU T4): mismo prompt con `amused/amused-512` y `stabilityai/sd-turbo`, 8 semillas cada uno |
 | `aborosaurus.png` | **Imagen final** (SD-Turbo, semilla 6, 512×512), la que usa la app y el chat |
-| `candidatas_sd_turbo.webp` | Las 8 candidatas de SD-Turbo (arriba semillas 0-3, abajo 4-7) |
+| `candidatas_amused.png` | Ronda 2: las 8 candidatas de aMUSEd (arriba semillas 0-3, abajo 4-7) |
+| `candidatas_sd_turbo.png` | Ronda 2: las 8 candidatas de SD-Turbo (arriba semillas 0-3, abajo 4-7) |
 | `imagen_info.json` | Modelo, prompt, pasos, guía, semilla y GPU de la imagen final |
 | `ronda1/` | Primera ronda con aMUSEd: candidatas, imagen y configuración |
 
@@ -40,9 +41,15 @@ Se compararon dos modelos de tamaño similar:
 | Tamaño aprox. | ~800 M parámetros | ~1 300 M parámetros |
 | Pasos / guía | 12 / 10.0 | 4 / 0.0 (no usa prompt negativo) |
 
-SD-Turbo dio imágenes nítidas y coherentes con la identidad:
+**aMUSEd** casi nunca dibujó al dinosaurio: en 6 de las 8 semillas solo aparece el bosque y en la 3 una
+figura cubierta de musgo. Probablemente, con un prompt largo que describe mucho el entorno, el modelo se queda con la escena
+y pierde al sujeto:
 
-![Candidatas SD-Turbo](candidatas_sd_turbo.webp)
+![Ronda 2 con aMUSEd](candidatas_amused.png)
+
+**SD-Turbo** dibujó al dinosaurio en las 8 semillas, nítido y en el bosque:
+
+![Ronda 2 con SD-Turbo](candidatas_sd_turbo.png)
 
 | Semilla | Resultado |
 |---|---|

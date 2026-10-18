@@ -147,9 +147,14 @@ compararon dos modelos de tamaño similar con 8 semillas cada uno:
 | Tamaño aprox. | ~800 M parámetros | ~1 300 M parámetros |
 | Pasos / guía | 12 / 10.0 | 4 / 0.0 |
 
-SD-Turbo dio imágenes nítidas y coherentes (arriba semillas 0-3, abajo 4-7):
+Con el prompt nuevo, **aMUSEd casi nunca dibujó al dinosaurio**: en 6 de las 8 semillas solo aparece
+el bosque y en la 3 una figura cubierta de musgo (arriba semillas 0-3, abajo 4-7):
 
-![Candidatas SD-Turbo](imagen/candidatas_sd_turbo.webp)
+![Ronda 2 con aMUSEd](imagen/candidatas_amused.png)
+
+**SD-Turbo** dio imágenes nítidas y coherentes con la identidad en todas las semillas:
+
+![Ronda 2 con SD-Turbo](imagen/candidatas_sd_turbo.png)
 
 | Semilla | ¿Encaja con la identidad? |
 |---|---|
