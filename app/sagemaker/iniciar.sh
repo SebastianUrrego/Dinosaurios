@@ -1,46 +1,40 @@
 #!/bin/bash
-# Levanta la API del notebook (api.py) y la publica con ngrok. Se ejecuta como ec2-user:
+# Construye y levanta la API del notebook (contenedor dinos-api) y el túnel (contenedor ngrok).
+# Se ejecuta una vez como ec2-user, y de nuevo solo si cambia el código de la API:
 #   bash /home/ec2-user/SageMaker/Dinosaurios/app/sagemaker/iniciar.sh
+# Los dos contenedores usan --restart unless-stopped, como Ollama: Docker los vuelve a levantar
+# en cada arranque del notebook, sin que el lifecycle tenga que esperar procesos que no terminan.
+#
 # Configuración (no va al repo): /home/ec2-user/SageMaker/api.env con
 #   API_KEY=...            clave que también usa la web
 #   NGROK_AUTHTOKEN=...    token de la cuenta de ngrok
-#   NGROK_DOMAIN=...       dominio fijo de ngrok (p. ej. algo.ngrok-free.app)
-# Todo lo instalado queda en el disco persistente. Log: /home/ec2-user/SageMaker/logs/api.log
+#   NGROK_DOMAIN=...       dominio fijo de ngrok (p. ej. algo.ngrok-free.dev)
 set -euo pipefail
 
 P=/home/ec2-user/SageMaker
 DIR=$(cd "$(dirname "$0")" && pwd)
-VENV=$P/venv-api
-LOG=$P/logs/api.log
-mkdir -p "$P/logs" "$P/bin" "$P/hf"
+ENV_FILE=$P/api.env
+mkdir -p "$P/hf"
 
-set -a; source "$P/api.env"; set +a
-export HF_HOME=$P/hf
+sed -i 's/\r$//' "$ENV_FILE"   # por si el archivo se editó en Windows
+set -a; source "$ENV_FILE"; set +a
 
-# 1) Entorno de Python (solo la primera vez)
-if [ ! -x "$VENV/bin/uvicorn" ]; then
-  /home/ec2-user/anaconda3/envs/python3/bin/python -m venv "$VENV"
-  "$VENV/bin/pip" install -q --upgrade pip
-  "$VENV/bin/pip" install -q torch --index-url https://download.pytorch.org/whl/cpu
-  "$VENV/bin/pip" install -q -r "$DIR/requirements.txt"
-fi
+# 1) Imagen de la API (la primera vez tarda unos minutos; luego usa la caché de Docker)
+docker build -q -t dinos-api "$DIR"
 
-# 2) ngrok (solo la primera vez)
-if [ ! -x "$P/bin/ngrok" ]; then
-  curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz | tar -xz -C "$P/bin"
-fi
-
-# 3) Reiniciar API y túnel
-pkill -f "uvicorn api:app" || true
+# 2) Contenedores con red del host: la API llega a Ollama en localhost:11434 y ngrok a la API en :8000
+pkill -f "venv-api/bin/uvicorn" || true   # versión anterior, sin contenedores
 pkill -f "$P/bin/ngrok" || true
-cd "$DIR"
-nohup "$VENV/bin/uvicorn" api:app --host 127.0.0.1 --port 8000 >> "$LOG" 2>&1 &
-nohup "$P/bin/ngrok" http 8000 --authtoken "$NGROK_AUTHTOKEN" --url "https://$NGROK_DOMAIN" \
-  --log stdout >> "$P/logs/ngrok.log" 2>&1 &
+docker rm -f dinos-api ngrok >/dev/null 2>&1 || true
+docker run -d --name dinos-api --restart unless-stopped --network host \
+  --env-file "$ENV_FILE" -v "$P/hf:/hf" dinos-api
+docker run -d --name ngrok --restart unless-stopped --network host \
+  -e NGROK_AUTHTOKEN="$NGROK_AUTHTOKEN" ngrok/ngrok:latest http 8000 --url "https://$NGROK_DOMAIN"
 
+# 3) Comprobar
 for i in $(seq 1 30); do
   curl -sf -H "X-API-Key: $API_KEY" localhost:8000/salud && break
   sleep 2
 done
 echo
-echo "API pública en https://$NGROK_DOMAIN"
+echo "API pública en https://$NGROK_DOMAIN  (logs: docker logs dinos-api / docker logs ngrok)"

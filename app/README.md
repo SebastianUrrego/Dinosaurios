@@ -15,7 +15,7 @@ chat se reinicia con el nuevo dinosaurio.
 | Carpeta | Dónde corre | Qué hace |
 |---|---|---|
 | `web/` | EC2 (Ubuntu 24.04, puerto 80) | Página, generador de nombres, orquestación y almacenamiento de cada dinosaurio (`web/datos/<id>/`) |
-| `sagemaker/` | Notebook `dinosaurios-ollama` (`127.0.0.1:8000`, publicado con ngrok) | Identidad y chat con Ollama, imagen con SD-Turbo |
+| `sagemaker/` | Notebook `dinosaurios-ollama`: contenedores Docker `dinos-api` (`127.0.0.1:8000`) y `ngrok` | Identidad y chat con Ollama, imagen con SD-Turbo |
 
 ## Qué recibe y devuelve cada componente
 
@@ -62,11 +62,15 @@ En una terminal de JupyterLab, con el repo clonado en `/home/ec2-user/SageMaker/
 ```bash
 cp Dinosaurios/app/sagemaker/api.env.example /home/ec2-user/SageMaker/api.env
 nano /home/ec2-user/SageMaker/api.env            # API_KEY, NGROK_AUTHTOKEN, NGROK_DOMAIN
-bash Dinosaurios/app/sagemaker/iniciar.sh        # la primera vez instala dependencias (~5 min)
+bash Dinosaurios/app/sagemaker/iniciar.sh        # construye la imagen la primera vez (~5 min)
 ```
 
-`ollama/on-start.sh` llama a `iniciar.sh` en cada arranque si existe `api.env`, así que después del
-primer uso la API se levanta sola. Logs: `/home/ec2-user/SageMaker/logs/api.log` y `ngrok.log`.
+`iniciar.sh` crea dos contenedores con `--restart unless-stopped`, igual que Ollama: Docker los
+levanta solos en cada arranque del notebook y el lifecycle solo hace un `docker start` instantáneo.
+Solo hay que volver a ejecutarlo si cambia el código de la API. Logs: `docker logs dinos-api` y `docker logs ngrok`.
+
+> El lifecycle **no** debe lanzar procesos que no terminan (por ejemplo `nohup uvicorn &`): SageMaker
+> espera a que acaben y el arranque falla con *"took longer than 5 minutes"*.
 
 ### 3. Web en local (prueba)
 

@@ -5,7 +5,7 @@
 #   - data-root de Docker -> /home/ec2-user/SageMaker/docker
 #   - modelos de Ollama   -> /home/ec2-user/SageMaker/ollama
 # El script tiene 5 min de límite: Docker se reinicia aquí mismo (en primer plano)
-# y la descarga del modelo y la API de la app se lanzan en segundo plano con nohup.
+# y solo la descarga del modelo (que termina) se lanza en segundo plano con nohup.
 set -euxo pipefail
 
 P=/home/ec2-user/SageMaker
@@ -45,10 +45,9 @@ nohup bash -c "
   echo ARRANQUE_COMPLETO \$(date)
 " >> "$LOG" 2>&1 &
 
-# 4) API de la app y túnel ngrok (app/sagemaker/iniciar.sh), si ya se configuró api.env
-API=$P/Dinosaurios/app/sagemaker/iniciar.sh
-if [ -f "$P/api.env" ] && [ -f "$API" ]; then
-  nohup sudo -u ec2-user bash "$API" >> "$P/logs/api.log" 2>&1 &
-fi
+# 4) API de la app y túnel ngrok: son contenedores (los crea app/sagemaker/iniciar.sh una vez).
+#    docker start vuelve al instante; nunca lanzar aquí procesos que no terminan, porque
+#    SageMaker espera a que acaben y el arranque falla a los 5 minutos.
+docker start dinos-api ngrok >/dev/null 2>&1 || true
 
 echo "on-start terminado (tareas largas siguen en $LOG)"
