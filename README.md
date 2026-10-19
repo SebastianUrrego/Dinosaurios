@@ -13,7 +13,7 @@ Modelo de caracteres → Nombre → Ollama → Identidad → Imagen → Chat
 | 1. Generador de nombres | ✅ Listo | GRU 2×256, top-p 0.9, 10 nombres nuevos → **Aborosaurus** |
 | 2. Identidad con Ollama | ✅ Listo | SageMaker `ml.m5.xlarge` + Docker + lifecycle on-start, `gemma4:e2b` |
 | 3. Imagen | ✅ Listo | Colab (T4): aMUSEd vs SD-Turbo → `stabilityai/sd-turbo`, semilla 6 |
-| 4. App web y chat | 🛠️ Código listo, falta desplegar | Web en EC2 + API en SageMaker (ngrok) |
+| 4. App web y chat | 🛠️ API en SageMaker funcionando; falta desplegar la web en EC2 | API y ngrok en contenedores Docker que arrancan solos; web probada en local |
 
 ## Estructura
 
