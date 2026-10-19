@@ -1,1 +1,3 @@
+# Todo el texto con saltos de línea LF: los archivos se usan en Linux (SageMaker, EC2)
+* text=auto eol=lf
 *.sh text eol=lf
