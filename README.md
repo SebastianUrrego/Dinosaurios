@@ -13,7 +13,7 @@ Modelo de caracteres → Nombre → Ollama → Identidad → Imagen → Chat
 | 1. Generador de nombres | ✅ Listo | GRU 2×256, top-p 0.9, 10 nombres nuevos → **Aborosaurus** |
 | 2. Identidad con Ollama | ✅ Listo | SageMaker `ml.m5.xlarge` + Docker + lifecycle on-start, `gemma4:e2b` |
 | 3. Imagen | ✅ Listo | Colab (T4): aMUSEd vs SD-Turbo → `stabilityai/sd-turbo`, semilla 6 |
-| 4. App web y chat | ⏳ Pendiente | |
+| 4. App web y chat | 🛠️ Código listo, falta desplegar | Web en EC2 + API en SageMaker (ngrok) |
 
 ## Estructura
 
@@ -22,7 +22,7 @@ Modelo de caracteres → Nombre → Ollama → Identidad → Imagen → Chat
 | `generador_nombres/` | RNN de caracteres: preprocesamiento, entrenamiento, muestreo y evidencias ([detalle](generador_nombres/README.md)) |
 | `ollama/` | Ollama en SageMaker: lifecycle on-start, verificación e identidad ([detalle](ollama/README.md)) |
 | `imagen/` | Imagen text-to-image en Colab: notebook, candidatas e imagen final ([detalle](imagen/README.md)) |
-| `app/` | Aplicación web y chat |
+| `app/` | Web (EC2) y API del notebook (SageMaker): flujo completo y chat ([detalle](app/README.md)) |
 | `docs/` | Capturas y diagramas |
 
 ---
@@ -181,7 +181,7 @@ Copia `.env.example` a `.env` y completa los valores. El archivo `.env` no se ve
 | Generador de nombres | `cd generador_nombres && pip install -r requirements.txt && python entrenar.py && python muestreo.py`; nombres nuevos sin reentrenar: `python generar.py -n 5` |
 | Ollama | lifecycle `ollama/on-start.sh` (ver [ollama/README.md](ollama/README.md)), luego `verificar_ollama.ipynb` e `identidad.ipynb` en SageMaker |
 | Imagen | `imagen/generar_imagen.ipynb` en Colab con GPU; resultado en `imagen/aborosaurus.png` |
-| App | _pendiente_ |
+| App | API: `app/sagemaker/iniciar.sh` en SageMaker; web: `app/web/instalar_ec2.sh` en EC2 (ver [app/README.md](app/README.md)) |
 
 ## Enlaces
 

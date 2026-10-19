@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Isla de los Dinosaurios</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <header class="barra">
+    <div class="marca">
+      <span class="logo" aria-hidden="true">🦕</span>
+      <div>
+        <h1>Isla de los Dinosaurios</h1>
+        <p class="sub">Nombre con una RNN de caracteres · identidad con Ollama · imagen con SD-Turbo</p>
+      </div>
+    </div>
+    <div class="acciones">
+      <span id="estado" class="estado" title="Conexión con el notebook de SageMaker">Conectando…</span>
+      <button id="nuevo" class="boton">Nuevo Dinosaurio</button>
+    </div>
+  </header>
+
+  <main class="contenido">
+    <section class="ficha" aria-labelledby="nombre">
+      <figure class="foto">
+        <img id="imagen" alt="">
+      </figure>
+      <div class="cuerpo">
+        <h2 id="nombre">…</h2>
+        <p id="significado" class="significado"></p>
+        <dl id="rasgos" class="rasgos"></dl>
+        <details class="origen">
+          <summary>Cómo se creó</summary>
+          <dl id="origen" class="rasgos pequeno"></dl>
+        </details>
+      </div>
+    </section>
+
+    <section class="chat" aria-label="Chat con el dinosaurio">
+      <div id="mensajes" class="mensajes" aria-live="polite"></div>
+      <form id="formulario" class="entrada">
+        <input id="texto" type="text" placeholder="Pregúntale algo…" autocomplete="off" maxlength="500">
+        <button class="boton" type="submit">Enviar</button>
+      </form>
+    </section>
+  </main>
+
+  <dialog id="progreso" class="progreso">
+    <h3>Creando un nuevo dinosaurio</h3>
+    <ol id="pasos" class="pasos"></ol>
+    <p id="reloj" class="reloj">0 s</p>
+    <p id="error" class="error" hidden></p>
+    <button id="cerrar" class="boton secundario" hidden>Cerrar</button>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

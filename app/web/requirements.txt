@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+requests
+python-dotenv
+numpy
+# PyTorch CPU para el generador de nombres:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu

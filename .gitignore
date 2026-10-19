@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+api.env
 *.pem
 *.key
 credentials*
@@ -36,3 +37,6 @@ build/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Dinosaurios generados por la app
+app/web/datos/
