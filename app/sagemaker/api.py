@@ -38,8 +38,10 @@ app = FastAPI(title="Isla de los Dinosaurios - SageMaker", dependencies=[Depends
 def ollama_chat(mensajes, opciones, formato=None):
     # gemma4 es un modelo con razonamiento: sin think=False escribe un análisis largo antes de
     # responder y en CPU cada petición tarda minutos. keep_alive=-1 lo deja cargado en memoria.
-    cuerpo = {"model": MODELO_OLLAMA, "messages": mensajes, "stream": False, "options": opciones,
-              "think": False, "keep_alive": -1}
+    # num_ctx fijo y pequeño: menos memoria para gemma4 (y el mismo valor del precalentamiento del
+    # on-start; si cambia, Ollama recarga el modelo)
+    cuerpo = {"model": MODELO_OLLAMA, "messages": mensajes, "stream": False,
+              "options": {**opciones, "num_ctx": 4096}, "think": False, "keep_alive": -1}
     if formato:
         cuerpo["format"] = formato
     r = requests.post(f"{OLLAMA}/api/chat", json=cuerpo, timeout=300)
@@ -99,7 +101,13 @@ def cargar_pipe():
             import torch
             from diffusers import AutoPipelineForText2Image
             torch.set_num_threads(os.cpu_count())
-            _pipe = AutoPipelineForText2Image.from_pretrained(MODELO_IMAGEN, torch_dtype=torch.float32)
+            pipe = AutoPipelineForText2Image.from_pretrained(MODELO_IMAGEN, torch_dtype=torch.float32)
+            # Los pesos quedan mapeados al archivo (mmap). Con gemma4 ocupando RAM, el sistema los
+            # descartaba y releía del disco en cada paso (34 s/paso en vez de ~8 s): se copian a memoria.
+            for componente in (pipe.unet, pipe.vae, pipe.text_encoder):
+                for t in list(componente.parameters()) + list(componente.buffers()):
+                    t.data = t.data.clone()
+            _pipe = pipe
     return _pipe
 
 
