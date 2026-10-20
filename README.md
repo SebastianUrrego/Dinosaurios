@@ -202,8 +202,7 @@ Qué recibe y devuelve cada componente: [app/README.md](app/README.md).
 
 | Problema | Causa | Solución |
 |---|---|---|
-| El notebook fallaba con *"took longer than 5 minutes"* incluso con un script de 2 líneas | El script pegado desde Windows tenía saltos de línea `
-` | Subir el lifecycle como archivo desde CloudShell; `.gitattributes` con LF |
+| El notebook fallaba con *"took longer than 5 minutes"* incluso con un script de 2 líneas | El script pegado desde Windows tenía saltos de línea `CRLF` | Subir el lifecycle como archivo desde CloudShell; `.gitattributes` con LF |
 | Volvió a fallar al lanzar la API desde el lifecycle | SageMaker espera a que terminen los procesos del lifecycle, y la API y ngrok nunca terminan | API y ngrok como contenedores Docker con `--restart unless-stopped` |
 | El chat no respondía (más de 5 minutos) | `gemma4:e2b` es un modelo con razonamiento: escribía un análisis largo antes de responder | `think: false` en Ollama: de **3 min 37 s a 8.5 s** por respuesta |
 | La imagen tardaba 34 s por paso en lugar de ~8 s | Con gemma4 fijo en RAM, los pesos mapeados de SD-Turbo se releían del disco en cada paso | Copiar los pesos a memoria y limitar el contexto de gemma4 a 4096 tokens (commit `2a76a61`, pendiente de desplegar) |
