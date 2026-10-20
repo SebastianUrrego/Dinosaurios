@@ -1,0 +1,25 @@
+{
+  "id": "balamoceratops",
+  "nombre": "Balamoceratops",
+  "identidad": {
+    "nombre": "Balamoceratops",
+    "significado": "Combina la idea de un gran lagarto con la característica de una cabeza con cuernos, sugiriendo un gran herbívoro con armadura facial.",
+    "periodo": "Cretácico Superior",
+    "apariencia": "Medía aproximadamente 12 metros de largo y pesaba cerca de 4 toneladas. Poseía una robusta estructura corporal y una piel escamosa de color verde oliva oscuro, con grandes cornetes óseos que se extendían desde su cráneo.",
+    "habitat": "Prospere en los pantanos y sabanas boscosas del sur de América del Norte, donde la vegetación era densa y abundante.",
+    "alimentacion": "Era un herbívoro voraz, especializado en raspar la corteza y consumir grandes cantidades de helechos y plantas acuáticas utilizando sus robustos dientes para triturar la vegetación fibrosa.",
+    "comportamiento": "Se consideraba un animal territorial y social, formando pequeños grupos para defender sus zonas de pastoreo. Su defensa se basaba en la intimidación, utilizando sus cuernos para enfrentarse a depredadores más grandes.",
+    "rasgo_distintivo": "Poseía una placa ósea única en la base de su cuello que servía como punto de anclaje para sus cuernos, haciéndolos excepcionalmente pesados.",
+    "prompt_imagen": "Massive, heavily armored herbivore with large bony horns, dark olive skin, wading through dense prehistoric swamp vegetation."
+  },
+  "modelo_ollama": "gemma4:e2b",
+  "imagen": {
+    "modelo": "stabilityai/sd-turbo",
+    "prompt": "Balamoceratops, a dinosaur. Massive, heavily armored herbivore with large bony horns, dark olive skin, wading through dense prehistoric swamp vegetation. Detailed scales, realistic nature documentary illustration",
+    "pasos": 4,
+    "semilla": 9478
+  },
+  "presentacion": "¡Saludos! Soy Balamoceratops, y mi nombre significa la combinación de un gran lagarto con una cabeza con cuernos, lo que refleja mi aspecto robusto. Soy un dinosaurio del Cretácico Superior, medido y pesado, y disfruto mucho explorando los pantanos y sabanas boscosas.",
+  "creado": "2026-10-20 01:20:28",
+  "imagen_url": "/imagenes/balamoceratops.png"
+}
