@@ -9,13 +9,13 @@ class NoDisponible(Exception):
 
 
 def _config():
-    return os.getenv("SAGEMAKER_URL", "").rstrip("/"), {
+    return os.getenv("SAGEMAKER_URL", "").strip().strip("\"'").rstrip("/"), {
         "X-API-Key": os.getenv("API_KEY", ""),
         "ngrok-skip-browser-warning": "1",  # evita la página de aviso de ngrok
     }
 
 
-def _pedir(metodo, ruta, cuerpo=None, timeout=600):
+def _pedir(metodo, ruta, cuerpo=None, timeout=300):
     url, cabeceras = _config()
     if not url:
         raise NoDisponible("SAGEMAKER_URL no está configurada")
@@ -24,6 +24,9 @@ def _pedir(metodo, ruta, cuerpo=None, timeout=600):
     except requests.RequestException as e:
         raise NoDisponible(f"No se pudo conectar con SageMaker: {e.__class__.__name__}") from e
     if r.status_code != 200:
+        if "html" in r.headers.get("content-type", ""):  # página de error de ngrok
+            raise NoDisponible(f"SageMaker no respondió a tiempo en {ruta} (ngrok {r.status_code}); "
+                               "revisa que el notebook esté encendido")
         raise NoDisponible(f"SageMaker respondió {r.status_code} en {ruta}: {r.text[:200]}")
     return r.json()
 

@@ -10,14 +10,24 @@ const CAMPOS = [
 let mensajes = [];   // historial que se envía al chat: [{role, content}]
 let ocupado = false;
 
-async function api(ruta, opciones = {}) {
-  const r = await fetch(ruta, {
-    headers: { "Content-Type": "application/json" },
-    ...opciones,
-  });
-  const datos = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(datos.detail || `Error ${r.status}`);
-  return datos;
+async function api(ruta, opciones = {}, segundos = 30) {
+  const corte = new AbortController();
+  const reloj = setTimeout(() => corte.abort(), segundos * 1000);
+  try {
+    const r = await fetch(ruta, {
+      headers: { "Content-Type": "application/json" },
+      signal: corte.signal,
+      ...opciones,
+    });
+    const datos = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(datos.detail || `Error ${r.status}`);
+    return datos;
+  } catch (e) {
+    if (e.name === "AbortError") throw new Error("el dinosaurio tardó demasiado en responder; inténtalo de nuevo");
+    throw e;
+  } finally {
+    clearTimeout(reloj);
+  }
 }
 
 function lista(dl, pares) {
@@ -79,7 +89,7 @@ async function presentar() {
   bloquear(true);
   const espera = burbuja("dino escribiendo", "Despertando al dinosaurio…");
   try {
-    const r = await api("/api/presentacion");
+    const r = await api("/api/presentacion", {}, 240);
     espera.remove();
     burbuja("dino", r.respuesta, r.imagen_url);
     mensajes.push({ role: "assistant", content: r.respuesta });
@@ -100,7 +110,7 @@ $("formulario").addEventListener("submit", async (ev) => {
   bloquear(true);
   const espera = burbuja("dino escribiendo", "Escribiendo…");
   try {
-    const r = await api("/api/chat", { method: "POST", body: JSON.stringify({ mensajes }) });
+    const r = await api("/api/chat", { method: "POST", body: JSON.stringify({ mensajes }) }, 240);
     espera.remove();
     burbuja("dino", r.respuesta, r.imagen_url);
     mensajes.push({ role: "assistant", content: r.respuesta });
@@ -167,9 +177,12 @@ $("cerrar").addEventListener("click", () => $("progreso").close());
 async function revisarEstado() {
   const e = await api("/api/estado").catch(() => ({ sagemaker: false }));
   const ok = e.sagemaker && e.modelo_disponible;
-  $("estado").textContent = ok ? `SageMaker conectado · ${e.modelo_ollama}` : "SageMaker desconectado";
-  $("estado").className = `estado ${ok ? "ok" : "mal"}`;
+  const calentando = ok && (e.modelo_cargado === false || !e.imagen_cargada);
+  $("estado").textContent = !ok ? "SageMaker desconectado"
+    : calentando ? "SageMaker calentando los modelos…" : `SageMaker conectado · ${e.modelo_ollama}`;
+  $("estado").className = `estado ${!ok ? "mal" : calentando ? "medio" : "ok"}`;
   $("estado").title = e.detalle || "Conexión con el notebook de SageMaker";
+  if (calentando) setTimeout(revisarEstado, 15000);
 }
 
 (async () => {

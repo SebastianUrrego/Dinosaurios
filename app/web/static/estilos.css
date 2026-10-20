@@ -11,6 +11,7 @@
   --burbuja-yo-texto: #ffffff;
   --ok: #2f8a3e;
   --mal: #b8442f;
+  --medio: #c98500;
   --radio: 14px;
   color-scheme: light;
 }
@@ -29,6 +30,7 @@
     --burbuja-yo-texto: #ffffff;
     --ok: #6fbf7c;
     --mal: #e7836f;
+    --medio: #eda100;
     color-scheme: dark;
   }
 }
@@ -68,6 +70,7 @@ h1 { margin: 0; font-size: 20px; }
 .estado::before { content: "● "; }
 .estado.ok::before { color: var(--ok); }
 .estado.mal::before { color: var(--mal); }
+.estado.medio::before { color: var(--medio); }
 
 .boton {
   font: inherit;

@@ -42,6 +42,8 @@ nohup bash -c "
   until curl -sf localhost:11434/api/version; do sleep 2; done
   docker exec ollama ollama pull $MODELO_OLLAMA
   docker exec ollama ollama list
+  # Cargar el modelo en memoria y dejarlo ahí (keep_alive -1): el primer chat no espera la carga
+  curl -s localhost:11434/api/generate -d '{\"model\":\"$MODELO_OLLAMA\",\"keep_alive\":-1}'
   echo ARRANQUE_COMPLETO \$(date)
 " >> "$LOG" 2>&1 &
 

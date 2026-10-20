@@ -36,10 +36,13 @@ app = FastAPI(title="Isla de los Dinosaurios - SageMaker", dependencies=[Depends
 # ---------- Ollama ----------
 
 def ollama_chat(mensajes, opciones, formato=None):
-    cuerpo = {"model": MODELO_OLLAMA, "messages": mensajes, "stream": False, "options": opciones}
+    # gemma4 es un modelo con razonamiento: sin think=False escribe un análisis largo antes de
+    # responder y en CPU cada petición tarda minutos. keep_alive=-1 lo deja cargado en memoria.
+    cuerpo = {"model": MODELO_OLLAMA, "messages": mensajes, "stream": False, "options": opciones,
+              "think": False, "keep_alive": -1}
     if formato:
         cuerpo["format"] = formato
-    r = requests.post(f"{OLLAMA}/api/chat", json=cuerpo, timeout=600)
+    r = requests.post(f"{OLLAMA}/api/chat", json=cuerpo, timeout=300)
     r.raise_for_status()
     return r.json()["message"]["content"]
 
@@ -129,9 +132,11 @@ def salud():
     try:
         version = requests.get(f"{OLLAMA}/api/version", timeout=5).json()["version"]
         modelos = [m["name"] for m in requests.get(f"{OLLAMA}/api/tags", timeout=5).json()["models"]]
+        en_memoria = [m["name"] for m in requests.get(f"{OLLAMA}/api/ps", timeout=5).json()["models"]]
     except requests.RequestException:
-        version, modelos = None, []
+        version, modelos, en_memoria = None, [], []
     return {"ollama": version, "modelo_ollama": MODELO_OLLAMA, "modelo_disponible": MODELO_OLLAMA in modelos,
+            "modelo_cargado": MODELO_OLLAMA in en_memoria,
             "modelo_imagen": MODELO_IMAGEN, "imagen_cargada": _pipe is not None}
 
 
