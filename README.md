@@ -6,6 +6,8 @@ Laboratorio II de Procesamiento de Lenguaje Natural (Universidad Sergio Arboleda
 Modelo de caracteres → Nombre → Ollama → Identidad → Imagen → Chat
 ```
 
+**Sitio web:** http://52.207.10.151 (requiere la EC2 y el notebook de SageMaker encendidos)
+
 ## Avance
 
 | Etapa | Estado | Resultado |
@@ -13,7 +15,7 @@ Modelo de caracteres → Nombre → Ollama → Identidad → Imagen → Chat
 | 1. Generador de nombres | ✅ Listo | GRU 2×256, top-p 0.9, 10 nombres nuevos → **Aborosaurus** |
 | 2. Identidad con Ollama | ✅ Listo | SageMaker `ml.m5.xlarge` + Docker + lifecycle on-start, `gemma4:e2b` |
 | 3. Imagen | ✅ Listo | Colab (T4): aMUSEd vs SD-Turbo → `stabilityai/sd-turbo`, semilla 6 |
-| 4. App web y chat | 🛠️ API en SageMaker funcionando; falta desplegar la web en EC2 | API y ngrok en contenedores Docker que arrancan solos; web probada en local |
+| 4. App web y chat | ✅ Desplegada | Web en EC2 (http://52.207.10.151) + API en SageMaker con ngrok |
 
 ## Estructura
 
@@ -170,6 +172,61 @@ suelo y no trepando. La imagen se genera una sola vez y la app la reutiliza en e
 
 ---
 
+## 4. Aplicación web y chat
+
+```
+Navegador ──► Web en EC2 (FastAPI) ──► generador de nombres (GRU, sin reentrenar)
+                    │
+                    └── HTTPS (ngrok) + X-API-Key ──► API en SageMaker (contenedor Docker)
+                                                         ├──► Ollama gemma4:e2b: identidad y chat
+                                                         └──► SD-Turbo en CPU: imagen
+```
+
+- **Web (EC2 `t3.small`, Ubuntu 24.04, IP fija 52.207.10.151):** muestra el nombre, la identidad, la imagen y la
+  información del modelo de caracteres; tiene el chat y el botón **Nuevo Dinosaurio**.
+- **API del notebook:** contenedores Docker `dinos-api` y `ngrok` con reinicio automático, igual que Ollama.
+  El lifecycle on-start solo hace `docker start`, así que al encender el notebook todo arranca solo.
+- **Chat:** la identidad completa va como mensaje de sistema en cada petición, con la regla de no contradecirla.
+  El dinosaurio muestra su imagen al presentarse y cuando se le pide la descripción.
+- **Nuevo Dinosaurio:** el GRU ya entrenado genera un nombre nuevo → Ollama crea la identidad → SD-Turbo genera
+  la imagen una sola vez → Ollama escribe la presentación. La página muestra el progreso de cada paso.
+
+Qué recibe y devuelve cada componente: [app/README.md](app/README.md).
+
+| Presentación y chat | Nuevo Dinosaurio |
+|---|---|
+| ![Aborosaurus se presenta y corrige que es herbívoro](docs/capturas/5_app_presentacion_y_chat.webp) | ![Eospechopheosaurus, generado con el botón](docs/capturas/6_app_nuevo_dinosaurio.webp) |
+| Se presenta con su imagen y, ante "¿eres carnívoro?", corrige: es herbívoro | Nombre, identidad (saurópodo de pantano) e imagen coherentes, sin reentrenar |
+
+### Problemas resueltos durante el despliegue
+
+| Problema | Causa | Solución |
+|---|---|---|
+| El notebook fallaba con *"took longer than 5 minutes"* incluso con un script de 2 líneas | El script pegado desde Windows tenía saltos de línea `
+` | Subir el lifecycle como archivo desde CloudShell; `.gitattributes` con LF |
+| Volvió a fallar al lanzar la API desde el lifecycle | SageMaker espera a que terminen los procesos del lifecycle, y la API y ngrok nunca terminan | API y ngrok como contenedores Docker con `--restart unless-stopped` |
+| El chat no respondía (más de 5 minutos) | `gemma4:e2b` es un modelo con razonamiento: escribía un análisis largo antes de responder | `think: false` en Ollama: de **3 min 37 s a 8.5 s** por respuesta |
+| La imagen tardaba 34 s por paso en lugar de ~8 s | Con gemma4 fijo en RAM, los pesos mapeados de SD-Turbo se releían del disco en cada paso | Copiar los pesos a memoria y limitar el contexto de gemma4 a 4096 tokens (commit `2a76a61`, pendiente de desplegar) |
+
+---
+
+## 9. Verificación antes de la entrega
+
+| Verificación de la guía | Estado | Evidencia |
+|---|---|---|
+| Los diez nombres no son copias del conjunto de entrenamiento | ✅ | Cada nombre se compara con `dinos.csv` y se descarta si existe ([muestreo](generador_nombres/resultados/muestreo.md)) |
+| El dinosaurio seleccionado tiene una identidad coherente | ✅ | Comparación `llama3.2:3b` vs `gemma4:e2b`; se eligió la coherente ([identidad](ollama/identidad.json)) |
+| La imagen corresponde con los rasgos descritos | ✅ | SD-Turbo semilla 6: esbelto, verde, bosque húmedo; se descartaron las que tenían rasgos de carnívoro ([imagen](imagen/README.md)) |
+| El chat conserva la identidad durante la conversación | ✅ | Ante "¿eres carnívoro?" corrige que es herbívoro (captura 5) |
+| La imagen aparece en el chat al presentar o describir al dinosaurio | ✅ | Presentación con imagen (capturas 5 y 6); "descríbete", "cómo eres" o "foto" también la muestran |
+| El botón Nuevo Dinosaurio genera sin reentrenar | ✅ | `generar.py` carga `modelo.pt` y solo muestrea; Eospechopheosaurus (captura 6) |
+| El sitio web es accesible | ✅ | http://52.207.10.151, con IP fija; necesita la EC2 y el notebook encendidos |
+| El repositorio tiene instrucciones y no publica información sensible | ✅ | README por carpeta; `.env` y `api.env` fuera del repo; revisión de claves antes de cada push |
+
+**Pendiente:** desplegar la mejora de velocidad de la imagen (`2a76a61`) y hacer público el repositorio para la entrega.
+
+---
+
 ## Configuración
 
 Copia `.env.example` a `.env` y completa los valores. El archivo `.env` no se versiona.
@@ -185,4 +242,5 @@ Copia `.env.example` a `.env` y completa los valores. El archivo `.env` no se ve
 
 ## Enlaces
 
-- Sitio web: _pendiente_
+- Sitio web: http://52.207.10.151
+- Repositorio: https://github.com/SebastianUrrego/Dinosaurios
