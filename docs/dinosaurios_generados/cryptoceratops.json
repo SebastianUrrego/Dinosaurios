@@ -1,0 +1,25 @@
+{
+  "id": "cryptoceratops",
+  "nombre": "Cryptoceratops",
+  "identidad": {
+    "nombre": "Cryptoceratops",
+    "significado": "Significa 'ceratopsio oculto' o 'cuerno secreto', haciendo referencia a su naturaleza camuflada y sus estructuras óseas prominentes.",
+    "periodo": "Cretácico Superior",
+    "apariencia": "Medía aproximadamente 8 metros de largo y pesaba cerca de 4 toneladas. Poseía una estructura corporal robusta y una piel escamosa de color tierra y gris oscuro, lo que le permitía mimetizarse perfectamente con la vegetación densa. Sus cuernos eran pequeños y curvados, diseñados para integrarse en el follaje.",
+    "habitat": "Habitaba en los pantanos y bosques densos de tierras bajas, aprovechando la vegetación exuberante para ocultar su presencia. Prefería las zonas con alta humedad y abundante cobertura vegetal.",
+    "alimentacion": "Era un herbívoro selectivo, consumiendo principalmente helechos y plantas acuáticas. Utilizaba su mandíbula fuerte y dientes planos para raspar la corteza y extraer la materia vegetal.",
+    "comportamiento": "Era un animal extremadamente esquivo y solitario, moviéndose lentamente y permaneciendo inmóvil durante largos periodos para evitar ser detectado. Su defensa principal era la camuflaje y la capacidad de enterrarse rápidamente en el barro.",
+    "rasgo_distintivo": "Poseía una capa de queratina bioluminiscente en su piel que podía activarse para emitir un patrón de luz tenue, ayudando a desorientar a los depredadores en la penumbra.",
+    "prompt_imagen": "A large, low-slung herbivore with mottled brown and grey skin, hidden among dense swamp foliage. Small, curved horns. Bioluminescent skin pattern faintly glowing in dim light."
+  },
+  "modelo_ollama": "gemma4:e2b",
+  "imagen": {
+    "modelo": "stabilityai/sd-turbo",
+    "prompt": "Cryptoceratops, a dinosaur. A large, low-slung herbivore with mottled brown and grey skin, hidden among dense swamp foliage. Small, curved horns. Bioluminescent skin pattern faintly glowing in dim light. Detailed scales, realistic nature documentary illustration",
+    "pasos": 4,
+    "semilla": 1388
+  },
+  "presentacion": "¡Hola! Soy Cryptoceratops, y mi nombre significa 'ceratopsio oculto', lo cual refleja mi naturaleza, ya que me esfuerzo mucho por pasar desapercibido en los bosques. Soy un dinosaurio del Cretácico Superior, robusto y tranquilo, y me muevo con mucha calma para no llamar la atención.",
+  "creado": "2026-10-20 01:14:22",
+  "imagen_url": "/imagenes/cryptoceratops.png"
+}
