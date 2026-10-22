@@ -1,0 +1,25 @@
+{
+  "id": "eospechopheosaurus",
+  "nombre": "Eospechopheosaurus",
+  "identidad": {
+    "nombre": "Eospechopheosaurus",
+    "significado": "Significa 'lagarto del tiempo' o 'reptil del tiempo', sugiriendo una adaptación a entornos cambiantes o a la observación prolongada.",
+    "periodo": "Jurásico Superior",
+    "apariencia": "Medía aproximadamente 12 metros de longitud y pesaba unos 4 toneladas. Poseía un cuerpo robusto y una postura cuadrúpeda, con una piel escamosa y coriácea de color verde oliva oscuro. Presentaba una cola larga y musculosa que le proporcionaba equilibrio.",
+    "habitat": "Se encontraba predominantemente en los llanuras boscosas y pantanosas del este de la antigua Gondwana, aprovechando la densa vegetación para camuflarse.",
+    "alimentacion": "Era un herbívoro voraz, especializado en consumir helechos gigantes y plantas acuáticas, utilizando sus dientes planos y resistentes para desgarrar la materia vegetal fibrosa.",
+    "comportamiento": "Se consideraba un animal solitario, moviéndose lentamente a través de los humedales. Su defensa se basaba en su gran tamaño y en la capacidad de sumergirse rápidamente en el barro para evadir depredadores.",
+    "rasgo_distintivo": "Poseía placas óseas complejas en la base de su cuello que le permitían soportar el peso de una gran cabeza mientras se alimentaba.",
+    "prompt_imagen": "Large, heavily scaled quadruped with a long tail, dark olive skin, wading through dense prehistoric swamp vegetation."
+  },
+  "modelo_ollama": "gemma4:e2b",
+  "imagen": {
+    "modelo": "stabilityai/sd-turbo",
+    "prompt": "Eospechopheosaurus, a dinosaur. Large, heavily scaled quadruped with a long tail, dark olive skin, wading through dense prehistoric swamp vegetation. Detailed scales, realistic nature documentary illustration",
+    "pasos": 4,
+    "semilla": 5434
+  },
+  "presentacion": "¡Hola! Soy Eospechopheosaurus, y mi nombre significa 'lagarto del tiempo', pues siento que mi vida es una observación lenta y constante del mundo a mi alrededor. Soy un saurópodo robusto de Jurásico Superior, con una piel verde oliva oscura y una cola fuerte que me ayuda en mis movimientos por los pantanosos.",
+  "creado": "2026-10-20 01:09:09",
+  "imagen_url": "/imagenes/eospechopheosaurus.png"
+}

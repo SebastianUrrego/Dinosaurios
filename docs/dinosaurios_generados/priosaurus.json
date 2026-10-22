@@ -1,0 +1,31 @@
+{
+  "id": "priosaurus",
+  "nombre": "Priosaurus",
+  "identidad": {
+    "nombre": "Priosaurus",
+    "significado": "Significa 'lagarto cazador', haciendo referencia a su naturaleza depredadora y su morfología reptiliana.",
+    "periodo": "Jurásico Medio",
+    "apariencia": "Medía aproximadamente 12 metros de longitud con un peso estimado de 4 toneladas. Presentaba un cuerpo robusto y una postura semi-erguida, cubierto por escamas gruesas de color verde oliva y marrón oscuro.",
+    "habitat": "Se encontraba predominantemente en los densos bosques de coníferas, aprovechando la vegetación para camuflarse y moverse.",
+    "alimentacion": "Era un piscívoro especializado; utilizaba su mandíbula fuerte y dientes afilados para atrapar y consumir peces grandes que habitaban los arroyos cercanos.",
+    "comportamiento": "Era un animal solitario, moviéndose lentamente a través del sotobosque. En caso de amenaza, se mostraba agresivo, utilizando su masa para intimidar a cualquier depredador potencial.",
+    "rasgo_distintivo": "Poseía una serie de espinas óseas prominentes a lo largo de su cuello, utilizadas para defenderse durante las emboscadas acuáticas.",
+    "prompt_imagen": "Large, olive-green and dark brown scaled reptile with a robust body, standing in a dense coniferous forest near a river. Prominent bony spines on its neck."
+  },
+  "modelo_ollama": "gemma4:e2b",
+  "pistas": {
+    "periodo": "Jurásico Medio",
+    "habitat": "bosques de coníferas",
+    "dieta": "piscívoro (come peces)",
+    "tamano": "grande (6 a 15 m)"
+  },
+  "imagen": {
+    "modelo": "stabilityai/sd-turbo",
+    "prompt": "Priosaurus, a dinosaur. Large, olive-green and dark brown scaled reptile with a robust body, standing in a dense coniferous forest near a river. Prominent bony spines on its neck. Detailed scales, realistic nature documentary illustration",
+    "pasos": 4,
+    "semilla": 7580
+  },
+  "presentacion": "¡Hola! Soy Priosaurus, y mi nombre significa 'lagarto cazador', lo cual refleja mi naturaleza de depredador. Soy un dinosaurio del Jurásico Medio, con un cuerpo robusto cubierto de escamas verde oliva y marrón. Me muevo lentamente por los bosques, esperando pacientemente a que los peces grandes aparezcan en los arroyos.",
+  "creado": "2026-10-22 21:44:32",
+  "imagen_url": "/imagenes/priosaurus.png"
+}

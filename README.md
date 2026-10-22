@@ -183,13 +183,17 @@ Navegador ──► Web en EC2 (FastAPI) ──► generador de nombres (GRU, si
 ```
 
 - **Web (EC2 `t3.small`, Ubuntu 24.04, IP fija 52.207.10.151):** muestra el nombre, la identidad, la imagen y la
-  información del modelo de caracteres; tiene el chat y el botón **Nuevo Dinosaurio**.
+  información del modelo de caracteres; tiene el chat y el botón **Nuevo Dinosaurio**. Siempre empieza por
+  **Aborosaurus**, el dinosaurio del laboratorio, y una galería permite volver a los creados con el botón.
 - **API del notebook:** contenedores Docker `dinos-api` y `ngrok` con reinicio automático, igual que Ollama.
   El lifecycle on-start solo hace `docker start`, así que al encender el notebook todo arranca solo.
 - **Chat:** la identidad completa va como mensaje de sistema en cada petición, con la regla de no contradecirla.
   El dinosaurio muestra su imagen al presentarse y cuando se le pide la descripción.
 - **Nuevo Dinosaurio:** el GRU ya entrenado genera un nombre nuevo → Ollama crea la identidad → SD-Turbo genera
   la imagen una sola vez → Ollama escribe la presentación. La página muestra el progreso de cada paso.
+- **Variedad:** para cada dinosaurio nuevo se sortean periodo, hábitat, dieta y tamaño, que se agregan al prompt de
+  identidad (temperatura 0.6, semilla aleatoria). Sin esto salían casi todos herbívoros de pantano; con ellos,
+  por ejemplo, Priosaurus salió piscívoro de bosques de coníferas ([comparación](docs/dinosaurios_generados/README.md)).
 
 Qué recibe y devuelve cada componente: [app/README.md](app/README.md).
 
@@ -205,7 +209,8 @@ Qué recibe y devuelve cada componente: [app/README.md](app/README.md).
 | El notebook fallaba con *"took longer than 5 minutes"* incluso con un script de 2 líneas | El script pegado desde Windows tenía saltos de línea `CRLF` | Subir el lifecycle como archivo desde CloudShell; `.gitattributes` con LF |
 | Volvió a fallar al lanzar la API desde el lifecycle | SageMaker espera a que terminen los procesos del lifecycle, y la API y ngrok nunca terminan | API y ngrok como contenedores Docker con `--restart unless-stopped` |
 | El chat no respondía (más de 5 minutos) | `gemma4:e2b` es un modelo con razonamiento: escribía un análisis largo antes de responder | `think: false` en Ollama: de **3 min 37 s a 8.5 s** por respuesta |
-| La imagen tardaba 34 s por paso en lugar de ~8 s | Con gemma4 fijo en RAM, los pesos mapeados de SD-Turbo se releían del disco en cada paso | Copiar los pesos a memoria y limitar el contexto de gemma4 a 4096 tokens (commit `2a76a61`, pendiente de desplegar) |
+| La imagen tardaba 34 s por paso en lugar de ~8 s | Con gemma4 fijo en RAM, los pesos mapeados de SD-Turbo se releían del disco en cada paso | Copiar los pesos a memoria y limitar el contexto de gemma4 a 4096 tokens |
+| Los dinosaurios nuevos salían muy parecidos | Mismo prompt y temperatura baja (0.4) | Rasgos sorteados por dinosaurio, temperatura 0.6 y semilla aleatoria |
 
 ---
 
@@ -222,7 +227,7 @@ Qué recibe y devuelve cada componente: [app/README.md](app/README.md).
 | El sitio web es accesible | ✅ | http://52.207.10.151, con IP fija; necesita la EC2 y el notebook encendidos |
 | El repositorio tiene instrucciones y no publica información sensible | ✅ | README por carpeta; `.env` y `api.env` fuera del repo; revisión de claves antes de cada push |
 
-**Pendiente:** desplegar la mejora de velocidad de la imagen (`2a76a61`) y hacer público el repositorio para la entrega.
+**Pendiente:** hacer público el repositorio para la entrega y encender la EC2 y el notebook antes de la revisión.
 
 ---
 
