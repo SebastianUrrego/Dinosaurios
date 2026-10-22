@@ -1,4 +1,5 @@
-"""Prompts de Ollama. El de identidad es el mismo de ollama/identidad.ipynb."""
+"""Prompts de Ollama. PLANTILLA_IDENTIDAD es el mismo prompt de ollama/identidad.ipynb (Aborosaurus); para los
+dinosaurios nuevos la app le agrega RASGOS_SORTEADOS, para que no salgan todos parecidos."""
 
 SISTEMA_IDENTIDAD = """Eres un paleontólogo que describe especies ficticias de dinosaurios.
 Todo lo que describes debe ser coherente entre sí: el tamaño, la anatomía, el hábitat,
@@ -21,6 +22,27 @@ Responde solo con un JSON con estas claves:
 - "rasgo_distintivo": una característica única que lo diferencia de otros dinosaurios (1 frase)
 - "prompt_imagen": descripción visual en inglés para un generador de imágenes, máximo 40 palabras,
   solo rasgos visibles y el entorno, sin el nombre"""
+
+# Rasgos que se sortean para cada dinosaurio nuevo. Con el mismo prompt y temperatura baja, gemma4 repetía
+# patrones (herbívoros de pantano del Cretácico Superior); sortear estos rasgos da variedad sin perder coherencia.
+OPCIONES_RASGOS = {
+    "periodo": ["Triásico Tardío", "Jurásico Temprano", "Jurásico Medio", "Jurásico Tardío",
+                "Cretácico Temprano", "Cretácico Tardío"],
+    "habitat": ["desiertos de dunas", "costas y lagunas", "montañas rocosas", "llanuras abiertas",
+                "bosques de coníferas", "deltas de ríos", "islas volcánicas", "regiones polares con inviernos oscuros",
+                "pantanos", "selvas tropicales"],
+    "dieta": ["herbívoro", "carnívoro", "omnívoro", "piscívoro (come peces)", "insectívoro"],
+    "tamano": ["pequeño (menos de 2 m)", "mediano (2 a 6 m)", "grande (6 a 15 m)", "gigante (más de 15 m)"],
+}
+
+RASGOS_SORTEADOS = """
+
+Para que cada especie sea distinta, usa estos rasgos asignados al azar:
+- Periodo: {periodo}
+- Hábitat: {habitat}
+- Dieta: {dieta}
+- Tamaño: {tamano}
+Si alguno contradice claramente el significado del nombre, ajústalo lo mínimo para que todo sea coherente."""
 
 CLAVES_IDENTIDAD = ["nombre", "significado", "periodo", "apariencia", "habitat", "alimentacion",
                     "comportamiento", "rasgo_distintivo", "prompt_imagen"]

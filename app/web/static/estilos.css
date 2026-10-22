@@ -85,6 +85,35 @@ h1 { margin: 0; font-size: 20px; }
 .boton:disabled { opacity: 0.5; cursor: not-allowed; }
 .boton.secundario { background: transparent; color: var(--texto); border: 1px solid var(--borde); }
 
+.galeria {
+  max-width: 1200px;
+  margin: 16px auto 0;
+  padding: 0 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.galeria-titulo { font-size: 13px; color: var(--texto-2); white-space: nowrap; }
+.galeria-lista { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.tarjeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.tarjeta img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.tarjeta.activa { border-color: var(--acento); box-shadow: inset 0 0 0 1px var(--acento); font-weight: 600; }
+.tarjeta .etiqueta { font-size: 11px; color: var(--acento); font-weight: 600; }
+.tarjeta:disabled { cursor: not-allowed; opacity: 0.6; }
+
 .contenido {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);

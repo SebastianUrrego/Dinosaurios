@@ -25,10 +25,10 @@ Todas las peticiones llevan la cabecera `X-API-Key`.
 
 | Ruta | Recibe | Devuelve |
 |---|---|---|
-| `POST /identidad` | `{"nombre": "Aborosaurus"}` | `{"identidad": {nombre, significado, periodo, apariencia, habitat, alimentacion, comportamiento, rasgo_distintivo, prompt_imagen}, "modelo", "segundos"}` |
+| `POST /identidad` | `{"nombre": "Aborosaurus", "sortear_rasgos": true}` | `{"identidad": {nombre, significado, periodo, apariencia, habitat, alimentacion, comportamiento, rasgo_distintivo, prompt_imagen}, "pistas": {periodo, habitat, dieta, tamano}, "modelo", "segundos"}` |
 | `POST /chat` | `{"identidad": {...}, "mensajes": [{"role": "user"\|"assistant", "content"}], "presentacion": false}` | `{"respuesta", "modelo", "segundos"}` |
 | `POST /imagen` | `{"nombre", "prompt_imagen", "semilla"}` | `{"png_base64", "prompt", "modelo", "pasos", "semilla", "segundos"}` (PNG 512×512) |
-| `GET /salud` | — | `{"ollama", "modelo_ollama", "modelo_disponible", "modelo_imagen", "imagen_cargada"}` |
+| `GET /salud` | — | `{"ollama", "modelo_ollama", "modelo_disponible", "modelo_cargado", "modelo_detalle": {digest, tamano_bytes, detalles}, "modelo_imagen", "imagen_cargada"}` |
 
 El chat envía la identidad completa como mensaje de sistema **en cada petición**, con la regla de no
 contradecirla, y solo los últimos 10 mensajes del historial.
@@ -37,16 +37,23 @@ contradecirla, y solo los últimos 10 mensajes del historial.
 
 | Ruta | Recibe | Devuelve |
 |---|---|---|
-| `GET /api/dinosaurio` | — | Dinosaurio actual: nombre, identidad, modelos usados e `imagen_url` |
+| `GET /api/dinosaurios` | — | Galería: `[{"id", "nombre", "imagen_url", "creado", "principal"}]`, con Aborosaurus primero |
+| `GET /api/dinosaurios/{id}` | — | Un dinosaurio: nombre, identidad, rasgos sorteados, modelos usados e `imagen_url` |
 | `GET /api/modelo` | — | Información del modelo de nombres: arquitectura, parámetros, mejor época, pérdida, muestreo |
-| `GET /api/presentacion` | — | `{"respuesta", "imagen_url"}`: la presentación se genera una vez y se guarda |
-| `POST /api/chat` | `{"mensajes": [...]}` | `{"respuesta", "imagen_url"}`: `imagen_url` solo si el usuario pide la descripción (descríbete, cómo eres, foto…) |
+| `GET /api/presentacion/{id}` | — | `{"respuesta", "imagen_url"}`: la presentación se genera una vez y se guarda |
+| `POST /api/chat` | `{"id": "aborosaurus", "mensajes": [...]}` | `{"respuesta", "imagen_url"}`: `imagen_url` solo si el usuario pide la descripción (descríbete, cómo eres, foto…) |
 | `POST /api/nuevo` | — | `{"trabajo", "pasos"}`: inicia Nuevo Dinosaurio en segundo plano |
 | `GET /api/trabajos/{id}` | — | `{"estado": "en_curso"\|"listo"\|"error", "paso", "nombre", "dino", "segundos"}` |
 | `GET /api/estado` | — | Si SageMaker responde, y qué modelos tiene |
 | `GET /imagenes/{id}.png` | — | Imagen del dinosaurio |
 
-El primer dinosaurio es **Aborosaurus**: se carga de `ollama/identidad.json` e `imagen/aborosaurus.png`.
+La página **siempre empieza por Aborosaurus**, el dinosaurio del laboratorio (de `ollama/identidad.json` e
+`imagen/aborosaurus.png`). Los creados con el botón quedan en la galería para volver a ellos.
+
+**Variedad de los dinosaurios nuevos:** con el mismo prompt y temperatura baja, gemma4 repetía patrones
+(herbívoros de pantano del Cretácico; ver `docs/dinosaurios_generados/`). Para cada dinosaurio nuevo la API
+sortea un periodo, un hábitat, una dieta y un tamaño, los agrega al prompt pidiendo que los ajuste si contradicen
+el nombre, y usa temperatura 0.6 con semilla aleatoria. Los rasgos sorteados se guardan y se muestran en la ficha.
 
 ## Puesta en marcha
 

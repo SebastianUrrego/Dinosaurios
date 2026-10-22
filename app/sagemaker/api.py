@@ -9,6 +9,7 @@ import base64
 import io
 import json
 import os
+import random
 import threading
 import time
 
@@ -16,8 +17,8 @@ import requests
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
-from prompts import (CLAVES_IDENTIDAD, PLANTILLA_IDENTIDAD, PLANTILLA_IMAGEN, PRESENTACION,
-                     SISTEMA_CHAT, SISTEMA_IDENTIDAD)
+from prompts import (CLAVES_IDENTIDAD, OPCIONES_RASGOS, PLANTILLA_IDENTIDAD, PLANTILLA_IMAGEN, PRESENTACION,
+                     RASGOS_SORTEADOS, SISTEMA_CHAT, SISTEMA_IDENTIDAD)
 
 OLLAMA = os.getenv("OLLAMA_URL", "http://localhost:11434")
 MODELO_OLLAMA = os.getenv("OLLAMA_MODEL", "gemma4:e2b")
@@ -51,23 +52,27 @@ def ollama_chat(mensajes, opciones, formato=None):
 
 class PedidoIdentidad(BaseModel):
     nombre: str
+    sortear_rasgos: bool = True
 
 
 @app.post("/identidad")
 def identidad(p: PedidoIdentidad):
-    """Recibe un nombre y devuelve la identidad en JSON con las claves de CLAVES_IDENTIDAD."""
+    """Recibe un nombre y devuelve la identidad en JSON con las claves de CLAVES_IDENTIDAD.
+    Con sortear_rasgos, agrega al prompt un periodo, hábitat, dieta y tamaño al azar (devueltos en "pistas")."""
     inicio = time.time()
-    mensajes = [{"role": "system", "content": SISTEMA_IDENTIDAD},
-                {"role": "user", "content": PLANTILLA_IDENTIDAD.format(nombre=p.nombre)}]
+    pistas = {k: random.choice(v) for k, v in OPCIONES_RASGOS.items()} if p.sortear_rasgos else None
+    prompt = PLANTILLA_IDENTIDAD.format(nombre=p.nombre) + (RASGOS_SORTEADOS.format(**pistas) if pistas else "")
+    mensajes = [{"role": "system", "content": SISTEMA_IDENTIDAD}, {"role": "user", "content": prompt}]
     for _ in range(2):  # un reintento si el modelo deja claves vacías
-        ident = json.loads(ollama_chat(mensajes, {"temperature": 0.4}, formato="json"))
+        ident = json.loads(ollama_chat(mensajes, {"temperature": 0.6, "seed": random.randint(0, 2**31)},
+                                       formato="json"))
         if all(ident.get(k) for k in CLAVES_IDENTIDAD):
             break
     faltan = [k for k in CLAVES_IDENTIDAD if not ident.get(k)]
     if faltan:
         raise HTTPException(502, f"Ollama no completó: {faltan}")
     ident["nombre"] = p.nombre
-    return {"identidad": ident, "modelo": MODELO_OLLAMA, "segundos": round(time.time() - inicio, 1)}
+    return {"identidad": ident, "pistas": pistas, "modelo": MODELO_OLLAMA, "segundos": round(time.time() - inicio, 1)}
 
 
 class PedidoChat(BaseModel):
@@ -139,12 +144,15 @@ def imagen(p: PedidoImagen):
 def salud():
     try:
         version = requests.get(f"{OLLAMA}/api/version", timeout=5).json()["version"]
-        modelos = [m["name"] for m in requests.get(f"{OLLAMA}/api/tags", timeout=5).json()["models"]]
+        tags = requests.get(f"{OLLAMA}/api/tags", timeout=5).json()["models"]
         en_memoria = [m["name"] for m in requests.get(f"{OLLAMA}/api/ps", timeout=5).json()["models"]]
     except requests.RequestException:
-        version, modelos, en_memoria = None, [], []
+        version, tags, en_memoria = None, [], []
+    modelos = [m["name"] for m in tags]
+    detalle = next(({"digest": m["digest"], "tamano_bytes": m["size"], "detalles": m["details"]}
+                    for m in tags if m["name"] == MODELO_OLLAMA), None)
     return {"ollama": version, "modelo_ollama": MODELO_OLLAMA, "modelo_disponible": MODELO_OLLAMA in modelos,
-            "modelo_cargado": MODELO_OLLAMA in en_memoria,
+            "modelo_cargado": MODELO_OLLAMA in en_memoria, "modelo_detalle": detalle,
             "modelo_imagen": MODELO_IMAGEN, "imagen_cargada": _pipe is not None}
 
 

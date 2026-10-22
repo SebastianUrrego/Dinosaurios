@@ -9,6 +9,7 @@ const CAMPOS = [
 ];
 let mensajes = [];   // historial que se envía al chat: [{role, content}]
 let ocupado = false;
+let actualId = null; // dinosaurio que se muestra y con el que se conversa
 
 async function api(ruta, opciones = {}, segundos = 30) {
   const corte = new AbortController();
@@ -57,6 +58,7 @@ function mostrarFicha(dino) {
       + `entrenada con ${m.nombres_entrenamiento} nombres; mejor época ${m.mejor_epoca}, `
       + `pérdida de validación ${m.perdida_validacion}; muestreo ${m.muestreo}`],
     ["Identidad", `Ollama ${dino.modelo_ollama} en SageMaker`],
+    ["Rasgos sorteados", dino.pistas && Object.values(dino.pistas).join(" · ")],
     ["Imagen", dino.imagen && `${dino.imagen.modelo}, ${dino.imagen.pasos} pasos, semilla ${dino.imagen.semilla}`],
   ]);
   document.title = `${dino.nombre} · Isla de los Dinosaurios`;
@@ -81,6 +83,42 @@ function bloquear(si) {
   ocupado = si;
   $("texto").disabled = si;
   $("formulario").querySelector("button").disabled = si;
+  for (const b of $("galeria").querySelectorAll("button")) b.disabled = si;
+}
+
+// ---------- Galería ----------
+
+async function cargarGaleria() {
+  const dinos = await api("/api/dinosaurios");
+  $("galeria").replaceChildren(...dinos.map((d) => {
+    const b = document.createElement("button");
+    b.className = "tarjeta";
+    b.dataset.id = d.id;
+    const img = document.createElement("img");
+    img.src = d.imagen_url;
+    img.alt = "";
+    b.append(img, document.createTextNode(d.nombre));
+    if (d.principal) {
+      const e = document.createElement("span");
+      e.className = "etiqueta";
+      e.textContent = "laboratorio";
+      b.append(e);
+    }
+    b.addEventListener("click", () => abrir(d.id));
+    return b;
+  }));
+  return dinos;
+}
+
+async function abrir(id) {
+  if (ocupado || id === actualId) return;
+  actualId = id;
+  for (const b of $("galeria").querySelectorAll("button")) {
+    b.classList.toggle("activa", b.dataset.id === id);
+    if (b.dataset.id === id) b.setAttribute("aria-current", "true"); else b.removeAttribute("aria-current");
+  }
+  mostrarFicha(await api(`/api/dinosaurios/${id}`));
+  await presentar();
 }
 
 async function presentar() {
@@ -89,7 +127,7 @@ async function presentar() {
   bloquear(true);
   const espera = burbuja("dino escribiendo", "Despertando al dinosaurio…");
   try {
-    const r = await api("/api/presentacion", {}, 240);
+    const r = await api(`/api/presentacion/${actualId}`, {}, 240);
     espera.remove();
     burbuja("dino", r.respuesta, r.imagen_url);
     mensajes.push({ role: "assistant", content: r.respuesta });
@@ -110,7 +148,7 @@ $("formulario").addEventListener("submit", async (ev) => {
   bloquear(true);
   const espera = burbuja("dino escribiendo", "Escribiendo…");
   try {
-    const r = await api("/api/chat", { method: "POST", body: JSON.stringify({ mensajes }) }, 240);
+    const r = await api("/api/chat", { method: "POST", body: JSON.stringify({ id: actualId, mensajes }) }, 240);
     espera.remove();
     burbuja("dino", r.respuesta, r.imagen_url);
     mensajes.push({ role: "assistant", content: r.respuesta });
@@ -155,9 +193,9 @@ $("nuevo").addEventListener("click", async () => {
       pintarPasos(t.pasos, t.paso, t.estado, t.nombre);
       $("reloj").textContent = `${t.segundos} s`;
       if (t.estado === "listo") {
-        mostrarFicha(t.dino);
         $("progreso").close();
-        await presentar();
+        await cargarGaleria();
+        await abrir(t.dino.id);
         break;
       }
       if (t.estado === "error") throw new Error(t.error);
@@ -187,7 +225,7 @@ async function revisarEstado() {
 
 (async () => {
   infoModelo = await api("/api/modelo").catch(() => null);
-  mostrarFicha(await api("/api/dinosaurio"));
+  const dinos = await cargarGaleria();
   revisarEstado();
-  presentar();
+  await abrir(dinos[0].id);  // siempre empieza por Aborosaurus, el dinosaurio del laboratorio
 })();
