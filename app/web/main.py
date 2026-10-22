@@ -38,6 +38,16 @@ PIDE_IMAGEN = re.compile(r"descr[ií]b|c[oó]mo eres|c[oó]mo te ves|\bverte\b|a
 app = FastAPI(title="Isla de los Dinosaurios")
 
 
+@app.middleware("http")
+async def revalidar(request, call_next):
+    """Que el navegador revalide la página, el JS y el CSS: tras un despliegue, una versión vieja
+    guardada en caché llamaría a rutas que ya no existen."""
+    respuesta = await call_next(request)
+    if not request.url.path.startswith("/imagenes/"):
+        respuesta.headers["Cache-Control"] = "no-cache"
+    return respuesta
+
+
 # ---------- Dinosaurios guardados ----------
 
 def slug(nombre):
